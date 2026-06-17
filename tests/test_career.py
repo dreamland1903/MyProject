@@ -22,6 +22,20 @@ def test_career_filters(driver):
     career_page.enter_search_text("כלכלה")
     career_page.click_search()
 
+    assert career_page.cards_list_visible() > 0
+
+def test_career_regions_only_center(driver):
+    career_page = CareerPage(driver)
+    driver.get("https://www.strauss-group.co.il/career/")
+    driver.maximize_window()
+
+    career_page.close_cookie_banner()
+
+    career_page.open_regions()
+    career_page.select_item_with_scroll("מרכז")
+    career_page.click_search()
+    assert career_page.check_text_in_all_results("מרכז") ==True
+
 def test_career_search_no_results(driver):
     career_page = CareerPage(driver)
     driver.get("https://www.strauss-group.co.il/career/")

@@ -41,7 +41,7 @@ class CareerPage(BasePage):
 
     def select_item_with_scroll(self, item_name):
         xpath=self.item_in_open_dropdown_xpath.format(item_name)
-        target_element = self.wait.until(EC.presence_of_element_located((By.XPATH, xpath)))
+        target_element = self.wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
         self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", target_element)   #Java
         target_element.click()
 
@@ -66,8 +66,8 @@ class CareerPage(BasePage):
             card_text=card.text.strip()
             if not card_text:
                 continue
-            if expected_text not in card.text and "ארצי" not in card.text:
-                print("\n=== НАЙДЕНА НЕОЖИДАННАЯ КАРТОЧКА ===")
+            if expected_text not in card_text and "ארצי" not in card_text:
+                print("\n=== AN UNEXPECTED CARD FOUND ===")
                 print(card.text)
                 print("====================================\n")
                 return False
