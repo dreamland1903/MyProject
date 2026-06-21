@@ -36,6 +36,26 @@ def test_career_regions_only_center(driver):
     career_page.click_search()
     assert career_page.check_text_in_all_results("מרכז") ==True
 
+def test_career_multiple_regions_combined(driver):
+    career_page = CareerPage(driver)
+    driver.get("https://www.strauss-group.co.il/career/")
+    driver.maximize_window()
+
+    career_page.close_cookie_banner()
+
+    career_page.open_regions()
+    career_page.select_item_with_scroll("מרכז")
+    career_page.open_regions()
+    career_page.click_search()
+
+    career_page.open_regions()
+    career_page.select_item_with_scroll("צפון")
+    career_page.open_regions()
+    career_page.click_search()
+
+    allowed_region=["מרכז","ארצי","צפון"]
+    assert career_page.check_text_matches_any_expected(allowed_region)==True
+
 def test_career_search_no_results(driver):
     career_page = CareerPage(driver)
     driver.get("https://www.strauss-group.co.il/career/")

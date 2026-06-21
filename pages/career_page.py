@@ -1,6 +1,10 @@
+import re
+import time
+
 from selenium.webdriver.common.by import By
 from pages.base_page import BasePage
 from selenium.webdriver.support import expected_conditions as EC
+import time
 
 from tests.conftest import driver
 
@@ -15,6 +19,7 @@ class CareerPage(BasePage):
     no_results_message = (By.ID, "no_jobs_found_title")
     all_jobs_link=(By.LINK_TEXT,"לכל המשרות")
     job_cards = (By.XPATH, "//div[@id='jobs_list']/div[contains(@class, 'jobs_list_order_wrap')]")
+    dropdown_menu=(By.XPATH, "//ul[contains(@class, 'jobs_index_dropdown')]")
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
@@ -37,6 +42,7 @@ class CareerPage(BasePage):
         self.input_text(self.search_input,text)
 
     def click_search(self):
+        self.wait.until(EC.invisibility_of_element_located(self.dropdown_menu))
         self.click_element(self.search_button)
 
     def select_item_with_scroll(self, item_name):
@@ -58,25 +64,33 @@ class CareerPage(BasePage):
         except:
             return 0
 
-    def check_text_in_all_results(self,expected_text):
-        cards= self.find_elements(self.job_cards)
+    def check_text_matches_any_expected(self, expected_list):
+        cards = self.find_elements(self.job_cards)
         if not cards:
             return False
+
+        real_cards_checked = 0
+
         for card in cards:
-            card_text=card.text.strip()
-            if not card_text:
+            card_text = card.text.strip()
+            has_letters = bool(re.search(r'[א-תa-zA-Z]', card_text))
+
+            if not card.is_displayed() or not card_text or len(card_text) < 20 or not has_letters:
                 continue
-            if expected_text not in card_text and "ארצי" not in card_text:
-                print("\n=== AN UNEXPECTED CARD FOUND ===")
-                print(card.text)
-                print("====================================\n")
+
+            real_cards_checked += 1
+
+            match_found = any(region in card_text for region in expected_list) or "ארצי" in card_text
+
+            if not match_found:
+                print(f"\n=== AN UNEXPECTED CARD FOUND ===")
+                print(card_text)
+                print(f"Something from this list was expected: {expected_list}")
+                print("===============================\n")
                 return False
+
+        if real_cards_checked == 0:
+            print("\n The test filtered everything and didn't find a single real vacancy!")
+            return False
+
         return True
-
-
-
-
-
-
-
-
