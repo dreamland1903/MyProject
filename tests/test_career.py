@@ -202,7 +202,7 @@ class TestStraussCareer:
             career_page.click_search()
             WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() > 0)
             initial_count = career_page.get_jobs_count()
-            print(f"\n[INFO] Initial jobs count: {initial_count}")
+            print(f"\nInitial jobs count: {initial_count}")
             assert initial_count > 0, "Error: Initial jobs count should be greater than 0!"
 
         with allure.step("3. Select 'Center' region (מרכז) from dropdown filters"):
@@ -223,8 +223,7 @@ class TestStraussCareer:
             career_page.click_clear_filters()
 
             WebDriverWait(driver, 10).until_not(
-                EC.text_to_be_present_in_element(career_page.job_counter_number, str(filtered_count))
-            )
+                EC.text_to_be_present_in_element(career_page.job_counter_number, str(filtered_count)))
             career_page.click_search()
 
         with allure.step("6. Confirm counter value successfully returned to initial amount"):
