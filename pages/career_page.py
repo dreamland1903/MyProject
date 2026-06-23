@@ -16,7 +16,10 @@ class CareerPage(BasePage):
     job_cards = (By.XPATH, "//div[@id='jobs_list']/div[contains(@class, 'jobs_list_order_wrap')]")
     dropdown_menu = (By.XPATH, "//ul[contains(@class, 'jobs_index_dropdown')]")
     clear_all_filters = (By.ID, "order_form_reset")
-    job_counter_number = (By.CSS_SELECTOR, "span[data-show='total_orders']")
+    #job_counter_number = (By.CSS_SELECTOR, "span[data-show='total_orders']")
+    job_counter_number = (By.XPATH, "// h2[@id='jobs_pre_text_initial']//span")
+
+
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
@@ -101,6 +104,7 @@ class CareerPage(BasePage):
     def get_jobs_count(self):
         try:
             count_text = self.get_element_text(self.job_counter_number)
+            print("inner " + count_text)
             return int(count_text.strip()) if count_text.strip().isdigit() else 0
         except:
             return 0

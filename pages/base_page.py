@@ -1,6 +1,10 @@
+import time
 
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+
+from tests.conftest import driver
+
 
 class BasePage:
     def __init__(self,driver):
@@ -17,10 +21,19 @@ class BasePage:
         element.send_keys(text)
 
     def get_element_text(self,locator):
-        element=self.wait.until(EC.visibility_of_element_located(locator))
-        return element.text
+        #self.wait.until(EC.visibility_of_element_located(*locator))
+        time.sleep(3)
+        element = self.driver.find_element(*locator)
+
+        print("element text" + element.get_attribute('innerText'))
+        return element.get_attribute('innerText')
+
+
+
 
     def find_elements(self,locator):
          self.wait.until(EC.presence_of_element_located(locator))
          return self.driver.find_elements(*locator)
 
+
+#  # element=self.wait.until(EC.visibility_of_element_located(locator))
