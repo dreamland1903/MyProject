@@ -5,22 +5,22 @@ from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
 
 class CareerPage(BasePage):
-    cookie_close_button=(By.ID,"cookie_msg_close")
-    region_button=(By.XPATH,'//button[@data-default="איזורים"]' )
-    areas_button=(By.XPATH,'//button[@data-default="תחומים"]')
+    cookie_close_button = (By.ID, "cookie_msg_close")
+    region_button = (By.XPATH, '//button[@data-default="איזורים"]')
+    areas_button = (By.XPATH, '//button[@data-default="תחומים"]')
     sub_fields_button = (By.XPATH, '//button[@data-default="תתי תחומים"]')
-    search_input=(By.ID,"freeText")
-    search_button=(By.CSS_SELECTOR,"button.submit_search.green_btn")
+    search_input = (By.ID, "freeText")
+    search_button = (By.CSS_SELECTOR, "button.submit_search.green_btn")
     no_results_message = (By.ID, "no_jobs_found_title")
-    all_jobs_link=(By.LINK_TEXT,"לכל המשרות")
+    all_jobs_link = (By.LINK_TEXT, "לכל המשרות")
     job_cards = (By.XPATH, "//div[@id='jobs_list']/div[contains(@class, 'jobs_list_order_wrap')]")
-    dropdown_menu=(By.XPATH, "//ul[contains(@class, 'jobs_index_dropdown')]")
-    clear_all_filters=(By.ID,"order_form_reset")
-    job_counter_number=(By.CSS_SELECTOR,"span[data-show='total_orders']")
+    dropdown_menu = (By.XPATH, "//ul[contains(@class, 'jobs_index_dropdown')]")
+    clear_all_filters = (By.ID, "order_form_reset")
+    job_counter_number = (By.CSS_SELECTOR, "span[data-show='total_orders']")
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
-    def __init__(self,driver):
+    def __init__(self, driver):
         super().__init__(driver)
 
     def close_cookie_banner(self):
@@ -35,17 +35,20 @@ class CareerPage(BasePage):
     def open_subfields(self):
         self.click_element(self.sub_fields_button)
 
-    def enter_search_text(self,text):
-        self.input_text(self.search_input,text)
+    def enter_search_text(self, text):
+        self.input_text(self.search_input, text)
 
     def click_search(self):
-        #self.wait.until(EC.invisibility_of_element_located(self.dropdown_menu))
+        try:
+            self.wait.until(EC.invisibility_of_element_located(self.dropdown_menu))
+        except:
+            pass
         self.click_element(self.search_button)
 
     def select_item_with_scroll(self, item_name):
-        xpath=self.item_in_open_dropdown_xpath.format(item_name)
-        target_element = self.wait.until(EC.visibility_of_element_located((By.XPATH, xpath)))
-        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", target_element)   #Java
+        xpath = self.item_in_open_dropdown_xpath.format(item_name)
+        target_element = self.wait.until(EC.element_to_be_clickable((By.XPATH, xpath)))
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", target_element)
         target_element.click()
 
     def get_no_results_text(self):
@@ -56,7 +59,7 @@ class CareerPage(BasePage):
 
     def cards_list_visible(self):
         try:
-            cards = self.find_elements(self.job_cards)
+            cards = self.wait.until(EC.presence_of_all_elements_located(self.job_cards))
             return len(cards)
         except:
             return 0
@@ -97,7 +100,7 @@ class CareerPage(BasePage):
 
     def get_jobs_count(self):
         try:
-            count_text=self.get_element_text(self.job_counter_number)
+            count_text = self.get_element_text(self.job_counter_number)
             return int(count_text.strip()) if count_text.strip().isdigit() else 0
         except:
             return 0

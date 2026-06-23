@@ -1,9 +1,7 @@
-import time
 import pytest
 import allure
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pages.base_page import BasePage
 from pages.career_page import CareerPage
 
 
@@ -13,34 +11,40 @@ class TestStraussCareer:
 
     @allure.story("Apply combined complex filters")
     @allure.severity(allure.severity_level.NORMAL)
-    def test_career_filters(self, driver):
-        career_page = CareerPage(driver)
+    @allure.epic("QA Automation Final Project")
+    @allure.feature("Job Search and Filtering Module")
+    class TestStraussCareer:
 
-        with allure.step("1. Navigate to career page"):
-            driver.get("https://www.strauss-group.co.il/career/")
-            career_page.close_cookie_banner()
+        @allure.story("Apply combined complex filters")
+        @allure.severity(allure.severity_level.NORMAL)
+        def test_career_filters(self, driver):
+            career_page = CareerPage(driver)
 
-        with allure.step("2. Select 'Center' region (מרכז)"):
-            career_page.open_regions()
-            career_page.select_item_with_scroll("מרכז")
-            career_page.open_regions()
+            with allure.step("1. Navigate to career page"):
+                driver.get("https://www.strauss-group.co.il/career/")
+                career_page.close_cookie_banner()
 
-        with allure.step("3. Select 'Finance' area (כספים)"):
-            career_page.open_areas()
-            career_page.select_item_with_scroll("כספים")
-            career_page.open_areas()
+            with allure.step("2. Select 'Center' region (מרכז)"):
+                career_page.open_regions()
+                career_page.select_item_with_scroll("מרכז")
+                career_page.open_regions()
 
-        with allure.step("4. Select profession 'Junior Assistant Controller' (עוזר חשב מתחיל)"):
-            career_page.open_subfields()
-            career_page.select_item_with_scroll("עוזר חשב מתחיל")
-            career_page.open_subfields()
+            with allure.step("3. Select 'Finance' area (כספים)"):
+                career_page.open_areas()
+                career_page.select_item_with_scroll("כספים")
+                career_page.open_areas()
 
-        with allure.step("5. Enter text 'Economics' (כלכלה) and trigger search"):
-            career_page.enter_search_text("כלכלה")
-            career_page.click_search()
+            with allure.step("4. Select profession 'Junior Assistant Controller' (עוזר חשב מתחיל)"):
+                career_page.open_subfields()
+                career_page.select_item_with_scroll("עוזר חשב מתחיל")
+                career_page.open_subfields()
 
-        with allure.step("6. Verify that job cards are visible"):
-            assert career_page.cards_list_visible() > 0
+            with allure.step("5. Enter text 'Economics' (כלכלה) and trigger search"):
+                career_page.enter_search_text("כלכלה")
+                career_page.click_search()
+
+            with allure.step("6. Verify that job cards are visible"):
+                assert career_page.cards_list_visible() > 0
 
     @allure.story("Filter jobs by single region")
     @allure.severity(allure.severity_level.NORMAL)
@@ -54,8 +58,14 @@ class TestStraussCareer:
         with allure.step("2. Filter by 'Center' region (מרכז) and search"):
             career_page.open_regions()
             career_page.select_item_with_scroll("מרכז")
+
+
+            old_count = career_page.get_jobs_count()
             career_page.click_search()
-            time.sleep(2)
+            if old_count > 0:
+                WebDriverWait(driver, 10).until_not(
+                    EC.text_to_be_present_in_element(career_page.job_counter_number, str(old_count))
+                )
 
         with allure.step("3. Verify all results contain 'Center' text"):
             assert career_page.check_text_matches_any_expected("מרכז") is True
@@ -79,7 +89,14 @@ class TestStraussCareer:
             career_page.open_regions()
             career_page.select_item_with_scroll("צפון")
             career_page.open_regions()
+
+            old_count = career_page.get_jobs_count()
             career_page.click_search()
+
+            if old_count > 0:
+                WebDriverWait(driver, 10).until_not(
+                    EC.text_to_be_present_in_element(career_page.job_counter_number, str(old_count))
+                )
 
         with allure.step("4. Verify results match any of the allowed regions"):
             allowed_region = ["מרכז", "ארצי", "צפון"]
@@ -198,14 +215,16 @@ class TestStraussCareer:
             WebDriverWait(driver, 10).until_not(
                 EC.text_to_be_present_in_element(career_page.job_counter_number, str(initial_count))
             )
-            time.sleep(2)
             filtered_count = career_page.get_jobs_count()
             print(f" Jobs count after filtering: {filtered_count}")
-            assert 0 < filtered_count < initial_count, "Error: Filter count did not decrease properly!"
+            assert 0 < filtered_count < initial_count, f"Error: Filter count did not decrease! Got {filtered_count}"
 
         with allure.step("5. Click clear filters button and refresh"):
             career_page.click_clear_filters()
-            time.sleep(1)
+
+            WebDriverWait(driver, 10).until_not(
+                EC.text_to_be_present_in_element(career_page.job_counter_number, str(filtered_count))
+            )
             career_page.click_search()
 
         with allure.step("6. Confirm counter value successfully returned to initial amount"):
@@ -213,9 +232,6 @@ class TestStraussCareer:
             final_count = career_page.get_jobs_count()
             print(f"Jobs after clearing filters: {final_count}")
             assert final_count == initial_count, f"Reset failed! Expected {initial_count}, but got {final_count}"
-
-
-
 
 
 
