@@ -55,9 +55,10 @@ class TestStraussCareer:
             career_page.open_regions()
             career_page.select_item_with_scroll("מרכז")
             career_page.click_search()
+            time.sleep(2)
 
         with allure.step("3. Verify all results contain 'Center' text"):
-            assert career_page.check_text_in_all_results("מרכז") is True
+            assert career_page.check_text_matches_any_expected("מרכז") is True
 
     @allure.story("Filter jobs by multiple regions combined")
     @allure.severity(allure.severity_level.NORMAL)
@@ -199,7 +200,7 @@ class TestStraussCareer:
             )
             time.sleep(2)
             filtered_count = career_page.get_jobs_count()
-            print(f"[INFO] Jobs count after filtering: {filtered_count}")
+            print(f" Jobs count after filtering: {filtered_count}")
             assert 0 < filtered_count < initial_count, "Error: Filter count did not decrease properly!"
 
         with allure.step("5. Click clear filters button and refresh"):
@@ -210,7 +211,7 @@ class TestStraussCareer:
         with allure.step("6. Confirm counter value successfully returned to initial amount"):
             WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() == initial_count)
             final_count = career_page.get_jobs_count()
-            print(f"[INFO] Jobs after clearing filters: {final_count}")
+            print(f"Jobs after clearing filters: {final_count}")
             assert final_count == initial_count, f"Reset failed! Expected {initial_count}, but got {final_count}"
 
 

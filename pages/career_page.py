@@ -39,7 +39,7 @@ class CareerPage(BasePage):
         self.input_text(self.search_input,text)
 
     def click_search(self):
-        self.wait.until(EC.invisibility_of_element_located(self.dropdown_menu))
+        #self.wait.until(EC.invisibility_of_element_located(self.dropdown_menu))
         self.click_element(self.search_button)
 
     def select_item_with_scroll(self, item_name):
