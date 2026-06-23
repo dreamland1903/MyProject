@@ -1,3 +1,7 @@
+import time
+
+from selenium.webdriver.support.wait import WebDriverWait
+from pages.base_page import BasePage
 from pages.career_page import CareerPage
 
 def test_career_filters(driver):
@@ -118,12 +122,45 @@ def test_input_search_hebrew_keyword(driver):
 
     assert career_page.cards_list_visible()>0
 
-def test_career_search_english_keyword(driver):
+# def test_career_search_english_keyword(driver):
+#     career_page = CareerPage(driver)
+#     driver.get("https://www.strauss-group.co.il/career/")
+#     driver.maximize_window()
+#
+#     career_page.close_cookie_banner()
+
+def test_clear_search_filters(driver):
     career_page = CareerPage(driver)
     driver.get("https://www.strauss-group.co.il/career/")
     driver.maximize_window()
-
     career_page.close_cookie_banner()
+    time.sleep(5)
+    career_page.click_search()
+
+    WebDriverWait(driver, 10).until( lambda d: career_page.get_jobs_count() > 0)
+
+    initial_count=career_page.get_jobs_count()
+    print(f"\nInitial jobs count: {initial_count}")
+    assert initial_count >0 ,"Error: Initial jobs count should be greater than 0!"
+
+    career_page.open_regions()
+    career_page.select_item_with_scroll("מרכז")
+    career_page.open_regions()
+    career_page.click_search()
+
+    WebDriverWait(driver, 10).until( lambda d:career_page.get_jobs_count()<initial_count)
+
+    filtered_count= career_page.get_jobs_count()
+    print(f"Jobs count after filtering: {filtered_count}")
+
+    career_page.click_clear_filters()
+    career_page.click_search()
+    time.sleep(5)
+    final_count = career_page.get_jobs_count()
+    print(f"[STEP 3] Jobs after clearing filters: {final_count}")
+    assert final_count == initial_count, f"Reset failed! Expected {initial_count}, but got {final_count}"
+
+
 
 
 

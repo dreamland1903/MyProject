@@ -1,13 +1,8 @@
 import re
 import time
-
 from selenium.webdriver.common.by import By
-from pages.base_page import BasePage
 from selenium.webdriver.support import expected_conditions as EC
-import time
-
-from tests.conftest import driver
-
+from pages.base_page import BasePage
 
 class CareerPage(BasePage):
     cookie_close_button=(By.ID,"cookie_msg_close")
@@ -20,6 +15,8 @@ class CareerPage(BasePage):
     all_jobs_link=(By.LINK_TEXT,"לכל המשרות")
     job_cards = (By.XPATH, "//div[@id='jobs_list']/div[contains(@class, 'jobs_list_order_wrap')]")
     dropdown_menu=(By.XPATH, "//ul[contains(@class, 'jobs_index_dropdown')]")
+    clear_all_filters=(By.ID,"order_form_reset")
+    job_counter_number=(By.CSS_SELECTOR,"span[data-show='total_orders']")
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
@@ -94,3 +91,26 @@ class CareerPage(BasePage):
             return False
 
         return True
+
+    def click_clear_filters(self):
+        self.click_element(self.clear_all_filters)
+
+    def get_jobs_count(self):
+        try:
+            count_text=self.get_element_text(self.job_counter_number)
+            return int(count_text.strip()) if count_text.strip().isdigit() else 0
+        except:
+            return 0
+
+
+
+
+
+
+
+
+
+
+
+
+
