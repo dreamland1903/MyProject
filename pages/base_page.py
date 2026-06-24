@@ -21,13 +21,11 @@ class BasePage:
         element.send_keys(text)
 
     def get_element_text(self,locator):
-        #self.wait.until(EC.visibility_of_element_located(*locator))
-        time.sleep(3)
-        element = self.driver.find_element(*locator)
-
-        print("element text" + element.get_attribute('innerText'))
-        return element.get_attribute('innerText')
-
+        self.wait.until(lambda driver: driver.find_element(*locator).get_attribute("textContent").strip() != "")
+        actual_element = self.driver.find_element(*locator)
+        text_value = actual_element.get_attribute("textContent").strip()
+        print("element text found: " + text_value)
+        return text_value
 
 
 

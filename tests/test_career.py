@@ -203,7 +203,8 @@ class TestStraussCareer:
 
         with allure.step("2. Fetch total active available jobs count"):
             career_page.click_search()
-            #WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() > 0)
+
+            WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() > 0)
             time.sleep(3)
             initial_count = career_page.get_jobs_count()
 
