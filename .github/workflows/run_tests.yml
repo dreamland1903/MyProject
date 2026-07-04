@@ -23,7 +23,6 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
-        # Флаг --ignore-missing-args или обычный pip install pytest, если файла requirements.txt нет в корне
         run: |
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install pytest selenium allure-pytest; fi
@@ -41,7 +40,7 @@ jobs:
       - name: Get Allure history
         uses: actions/checkout@v4
         if: always()
-        continue-on-error: true # Если ветки gh-pages еще нет, этот шаг просто пропустится, а не уронит сборку!
+        continue-on-error: true
         with:
           ref: gh-pages
           path: gh-pages
@@ -50,20 +49,14 @@ jobs:
         uses: simple-elf/allure-report-action@master
         if: always()
         with:
-            allure_results: allure-results
-            allure_history: allure-history
-            keep_reports: 20
+          allure_results: allure-results
+          allure_history: allure-history
+          keep_reports: 20
 
-      - name: Create non-empty directory fallback
+      - name: Deploy Allure Report to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
         if: always()
-        run: |
-              mkdir -p allure-history
-                touch allure-history/.gitkeep
-
-            - name: Deploy Allure Report to GitHub Pages
-              uses: peaceiris/actions-gh-pages@v4
-              if: always()
-              with:
-                github_token: ${{ secrets.GITHUB_TOKEN }}
-                publish_branch: gh-pages
-                publish_dir: allure-history
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
