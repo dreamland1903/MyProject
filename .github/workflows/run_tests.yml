@@ -62,3 +62,4 @@ jobs:
             publish_branch: gh-pages
             publish_dir: allure-history
             allow_empty_commit: true
+            pre_deploy_run: mkdir -p allure-history && touch allure-history/.gitkeep
