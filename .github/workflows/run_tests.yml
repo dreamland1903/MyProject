@@ -1,0 +1,66 @@
+name: Allure Report Deployment
+
+# Тесты запускаются автоматически ТОЛЬКО при пуше в мастер или вручную
+on:
+  push:
+    branches:
+      - master
+      - main
+  workflow_dispatch:
+
+jobs:
+  test-and-report:
+    runs-on: ubuntu-latest
+    # Даем серверу права записывать данные для создания веб-страницы отчета
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+
+      - name: Run Tests
+        run: |
+          pytest --alluredir=allure-results --headless
+        continue-on-error: true # Чтобы отчет создался, даже если негативный тест упадет
+
+      - name: Get Allure history
+        # Это нужно, чтобы на графиках Allure росла история прошлых запусков
+        uses: actions/checkout@v4
+        if: always()
+        with:
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Allure Report Action
+        # Экшен, который берет сырые результаты и превращает их в графики
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        with:
+          allure_results: allure-results
+          allure_history: allure-history
+          keep_reports: 20
+
+      - name: Deploy Allure Report to GitHub Pages
+        # Выкладываем готовую страницу с графиками в сеть
+        uses: peaceiris/actions-deploy-pages@v4
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history

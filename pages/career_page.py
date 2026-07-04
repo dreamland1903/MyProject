@@ -27,6 +27,7 @@ class CareerPage(BasePage):
     submit_cv_button = (By.CSS_SELECTOR, "button.submit_form_btn")
     checkbox_accept=(By.ID,"jobs_accept_input_117784")
     uploaded_file_wrapper=(By.CSS_SELECTOR, ".jobs_file_input_wrap.file_chosen")
+    phone_error_message=(By.ID,"tel-self-2-error")
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
@@ -156,6 +157,19 @@ class CareerPage(BasePage):
             return self.wait.until(EC.visibility_of_element_located(self.uploaded_file_wrapper)).is_displayed()
         except:
             return False
+
+    def get_phone_error_massage(self):
+        return self.wait.until(EC.visibility_of_element_located(self.phone_error_message)).text
+
+
+
+
+
+
+
+
+
+
 
 
 

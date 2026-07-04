@@ -261,6 +261,8 @@ class TestStraussCareer:
         with allure.step("4. Verify complete layout of the expanded CV application form"):
             assert career_page.is_cv_form_visible() is True, "Error: CV application form layout is broken or elements are missing!"
 
+    @allure.story("Submit CV form successfully with all valid data")
+    @allure.severity(allure.severity_level.CRITICAL)
     def test_send_cv_form(self, driver):
         career_page = CareerPage(driver)
 
@@ -292,6 +294,48 @@ class TestStraussCareer:
 
         with allure.step("8. Verify file uploaded successfully"):
             assert career_page.is_file_uploaded_successfully() is True, "Error. File not uploaded"
+
+    @allure.story("Verify error message when phone number field is left blank")
+    @allure.severity(allure.severity_level.NORMAL)
+    def test_send_cv_without_phone_negative(self, driver):
+        career_page = CareerPage(driver)
+
+        with allure.step("1. Navigate to career page"):
+            driver.get("https://www.strauss-group.co.il/career/")
+            career_page.close_cookie_banner()
+
+        with allure.step("2. Filter by 'Center' region (מרכז)"):
+            career_page.open_regions()
+            career_page.select_item_with_scroll("מרכז")
+            career_page.open_regions()
+            career_page.click_search()
+
+        with allure.step("3. Click on the first available job's 'Interested' button"):
+            WebDriverWait(driver, 10).until(lambda d: career_page.cards_list_visible() > 0)
+            career_page.click_first_interest_button()
+
+        with allure.step("4. Verify complete layout of the expanded CV application form"):
+            assert career_page.is_cv_form_visible() is True, "Error: CV application form layout is broken or elements are missing!"
+
+        with allure.step("5. Fill entire CV form without phone number"):
+            career_page.fill_entire_cv_form("Evgenia", "Novikova", "")
+
+        with allure.step("6. Click checkbox accept"):
+            career_page.click_checkbox_accept()
+
+        with allure.step("7. Upload CV file"):
+            career_page.upload_cv("/Users/zhenyanovikova/Downloads/Evgenia_Novikova_QA_Resume (1).pdf")
+
+        with allure.step("8. Verify file uploaded successfully"):
+            assert career_page.is_file_uploaded_successfully() is True, "Error. File not uploaded"
+
+        with allure.step("9. Click send button"):
+            career_page.click_element(career_page.submit_cv_button)
+
+        with allure.step("10. Verify error message for phone field appears"):
+            expected_error = "יש להזין מספר טלפון חוקי"
+            actual_error = career_page.get_phone_error_massage()
+            assert expected_error in actual_error, f"Expected error '{expected_error}', but got '{actual_error}'"
 
 
 

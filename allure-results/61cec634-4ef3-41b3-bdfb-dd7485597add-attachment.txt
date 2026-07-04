@@ -1,0 +1,3 @@
+
+[INFO] Initial jobs count: 111
+ Jobs count after filtering: 0

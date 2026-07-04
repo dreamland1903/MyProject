@@ -1,0 +1,9 @@
+element text found: 114
+inner 114
+element text found: 114
+inner 114
+
+Initial jobs count: 114
+element text found: 60
+inner 60
+ Jobs count after filtering: 60
