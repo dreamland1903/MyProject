@@ -1,6 +1,5 @@
 name: Allure Report Deployment
 
-# Тесты запускаются автоматически ТОЛЬКО при пуше в мастер или вручную
 on:
   push:
     branches:
@@ -11,7 +10,6 @@ on:
 jobs:
   test-and-report:
     runs-on: ubuntu-latest
-    # Даем серверу полные права на запись контента в репозиторий
     permissions:
       contents: write
 
@@ -25,9 +23,10 @@ jobs:
           python-version: '3.13'
 
       - name: Install dependencies
+        # Флаг --ignore-missing-args или обычный pip install pytest, если файла requirements.txt нет в корне
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install pytest selenium allure-pytest; fi
 
       - name: Install Chrome
         run: |
@@ -42,6 +41,7 @@ jobs:
       - name: Get Allure history
         uses: actions/checkout@v4
         if: always()
+        continue-on-error: true # Если ветки gh-pages еще нет, этот шаг просто пропустится, а не уронит сборку!
         with:
           ref: gh-pages
           path: gh-pages
@@ -55,10 +55,9 @@ jobs:
           keep_reports: 20
 
       - name: Deploy Allure Report to GitHub Pages
-        # Используем именно этот экшен, он идеально работает с contents: write
         uses: peaceiris/actions-gh-pages@v4
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
+          publish_branch: gh-pages # Экшен сам создаст эту ветку на Гитхабе
           publish_dir: allure-history
