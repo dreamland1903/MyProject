@@ -3,6 +3,7 @@ import time
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from pages.base_page import BasePage
+from selenium.webdriver.common.action_chains import ActionChains
 
 class CareerPage(BasePage):
     cookie_close_button = (By.ID, "cookie_msg_close")
@@ -18,8 +19,14 @@ class CareerPage(BasePage):
     clear_all_filters = (By.ID, "order_form_reset")
     #job_counter_number = (By.CSS_SELECTOR, "span[data-show='total_orders']")
     job_counter_number = (By.XPATH, "// h2[@id='jobs_pre_text_initial']//span")
-
-
+    interest_buttons = (By.ID,"jobs_order_open_btn_117784")
+    form_first_name = (By.ID, "first_name-self-0")
+    form_last_name = (By.ID, "last_name-self-1")
+    form_phone = (By.ID, "tel-self-2")
+    upload_cv_input = (By.CSS_SELECTOR, "input[type='file']")
+    submit_cv_button = (By.CSS_SELECTOR, "button.submit_form_btn")
+    checkbox_accept=(By.ID,"jobs_accept_input_117784")
+    uploaded_file_wrapper=(By.CSS_SELECTOR, ".jobs_file_input_wrap.file_chosen")
 
     item_in_open_dropdown_xpath = "//ul[contains(@class, 'jobs_index_dropdown')]//*[text()='{0}' or contains(text(), '{0}')]"
 
@@ -108,6 +115,48 @@ class CareerPage(BasePage):
             return int(count_text.strip()) if count_text.strip().isdigit() else 0
         except:
             return 0
+
+    def click_first_interest_button(self):
+        first_button = self.wait.until(
+            lambda driver: driver.find_elements(*self.interest_buttons)[0]
+            if len(driver.find_elements(*self.interest_buttons)) > 0 else False
+        )
+        self.driver.execute_script("arguments[0].scrollIntoView({block: 'center'});", first_button)
+
+        self.driver.execute_script("arguments[0].click();", first_button)
+
+    def is_cv_form_visible(self):
+        try:
+            self.wait.until(EC.visibility_of_element_located(self.form_first_name))
+            return (self.driver.find_element(*self.form_first_name).is_displayed() and
+                    self.driver.find_element(*self.form_last_name).is_displayed() and
+                    self.driver.find_element(*self.form_phone).is_displayed() and
+                    self.driver.find_element(*self.submit_cv_button).is_displayed())
+        except:
+            return False
+
+    def fill_entire_cv_form(self,first_name,last_name,phone):
+        self.input_text(self.form_first_name,first_name)
+        self.input_text(self.form_last_name,last_name)
+        self.input_text(self.form_phone,phone)
+
+    def click_checkbox_accept(self):
+        try:
+            self.wait.until(EC.visibility_of_element_located(self.checkbox_accept))
+        except:
+            pass
+        self.click_element(self.checkbox_accept)
+
+    def upload_cv(self,file_path):
+        file_input=self.wait.until(EC.presence_of_element_located(self.upload_cv_input))
+        file_input.send_keys(file_path)
+
+    def is_file_uploaded_successfully(self):
+        try:
+            return self.wait.until(EC.visibility_of_element_located(self.uploaded_file_wrapper)).is_displayed()
+        except:
+            return False
+
 
 
 

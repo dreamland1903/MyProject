@@ -205,7 +205,7 @@ class TestStraussCareer:
             career_page.click_search()
 
             WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() > 0)
-            time.sleep(3)
+            #time.sleep(3)
             initial_count = career_page.get_jobs_count()
 
             print(f"\nInitial jobs count: {initial_count}")
@@ -226,21 +226,72 @@ class TestStraussCareer:
             print(f" Jobs count after filtering: {filtered_count}")
             assert 0 < filtered_count < initial_count, f"Error: Filter count did not decrease! Got {filtered_count}"
 
-        # with allure.step("5. Click clear filters button and refresh"):
-        #     career_page.click_clear_filters()
-        #
-        #     WebDriverWait(driver, 10).until_not(
-        #         EC.text_to_be_present_in_element(career_page.job_counter_number, str(filtered_count)))
-        #     career_page.click_search()
-        #
-        # with allure.step("6. Confirm counter value successfully returned to initial amount"):
-        #     WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() == initial_count)
-        #     final_count = career_page.get_jobs_count()
-        #     print(f"Jobs after clearing filters: {final_count}")
-        #     assert final_count == initial_count, f"Reset failed! Expected {initial_count}, but got {final_count}"
+        with allure.step("5. Click clear filters button and refresh"):
+            career_page.click_clear_filters()
+
+            WebDriverWait(driver, 10).until_not(
+                EC.text_to_be_present_in_element(career_page.job_counter_number, str(filtered_count)))
+            career_page.click_search()
+
+        with allure.step("6. Confirm counter value successfully returned to initial amount"):
+            WebDriverWait(driver, 10).until(lambda d: career_page.get_jobs_count() == initial_count)
+            final_count = career_page.get_jobs_count()
+            print(f"Jobs after clearing filters: {final_count}")
+            assert final_count == initial_count, f"Reset failed! Expected {initial_count}, but got {final_count}"
+
+    @allure.story("Open job details and verify CV application form layout")
+    @allure.severity(allure.severity_level.CRITICAL)
+    def test_open_job_application_form(self, driver):
+        career_page = CareerPage(driver)
+
+        with allure.step("1. Navigate to career page"):
+            driver.get("https://www.strauss-group.co.il/career/")
+            career_page.close_cookie_banner()
+
+        with allure.step("2. Filter by 'Center' region (מרכז)"):
+            career_page.open_regions()
+            career_page.select_item_with_scroll("מרכז")
+            career_page.open_regions()
+            career_page.click_search()
+
+        with allure.step("3. Click on the first available job's 'Interested' button"):
+            WebDriverWait(driver, 10).until(lambda d: career_page.cards_list_visible() > 0)
+            career_page.click_first_interest_button()
+
+        with allure.step("4. Verify complete layout of the expanded CV application form"):
+            assert career_page.is_cv_form_visible() is True, "Error: CV application form layout is broken or elements are missing!"
+
+    def test_send_cv_form(self, driver):
+        career_page = CareerPage(driver)
+
+        with allure.step("1. Navigate to career page"):
+            driver.get("https://www.strauss-group.co.il/career/")
+            career_page.close_cookie_banner()
+
+        with allure.step("2. Filter by 'Center' region (מרכז)"):
+            career_page.open_regions()
+            career_page.select_item_with_scroll("מרכז")
+            career_page.open_regions()
+            career_page.click_search()
+
+        with allure.step("3. Click on the first available job's 'Interested' button"):
+            WebDriverWait(driver, 10).until(lambda d: career_page.cards_list_visible() > 0)
+            career_page.click_first_interest_button()
+
+        with allure.step("4. Verify complete layout of the expanded CV application form"):
+            assert career_page.is_cv_form_visible() is True, "Error: CV application form layout is broken or elements are missing!"
+
+        with allure.step("5. Fill entire CV form"):
+            career_page.fill_entire_cv_form("Evgenia", "Novikova", "0532201323")
+        with allure.step("6. Click checkbox accept"):
+            career_page.click_checkbox_accept()
+
+        with allure.step("7. Upload CV file"):
+            career_page.upload_cv("/Users/zhenyanovikova/Downloads/Evgenia_Novikova_QA_Resume (1).pdf")
 
 
-
+        with allure.step("8. Verify file uploaded successfully"):
+            assert career_page.is_file_uploaded_successfully() is True, "Error. File not uploaded"
 
 
 
