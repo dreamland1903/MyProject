@@ -49,7 +49,7 @@ jobs:
 
       - name: Allure Report Action
         # Экшен, который берет сырые результаты и превращает их в графики
-        uses: simple-elf/allure-report-action@master
+        uses: imple-elf/allure-report-action@master
         if: always()
         with:
           allure_results: allure-results
@@ -58,7 +58,7 @@ jobs:
 
       - name: Deploy Allure Report to GitHub Pages
         # Выкладываем готовую страницу с графиками в сеть
-        uses: peaceiris/actions-deploy-pages@v4
+        uses: actions/deploy-pages@v4
         if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
