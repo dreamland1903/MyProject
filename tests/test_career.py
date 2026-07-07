@@ -335,7 +335,8 @@ class TestStraussCareer:
         with allure.step("10. Verify error message for phone field appears"):
             expected_error = "יש להזין מספר טלפון חוקי"
             actual_error = career_page.get_phone_error_massage()
-            assert expected_error in actual_error, f"Expected error '{expected_error}', but got '{actual_error}'"
+            assert expected_error == actual_error, f"Expected error '{expected_error}', but got '{actual_error}'"
+
 
 
 
